@@ -1,0 +1,74 @@
+{
+  "name": "Swaparoony Frontend Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "runArgs": [
+    "--memory=4g",
+    "--cpus=4"
+  ],
+  "containerEnv": {
+    "NODE_ENV": "development"
+  },
+  "workspaceFolder": "/workspaces/swaparoony-frontend",
+  "customizations": {
+    // VS Code Configuration (commented out for IntelliJ usage)
+    // "vscode": {
+    //   "settings": {
+    //     "typescript.preferences.importModuleSpecifier": "relative",
+    //     "editor.formatOnSave": true,
+    //     "editor.codeActionsOnSave": {
+    //       "source.fixAll.eslint": true
+    //     },
+    //     "files.exclude": {
+    //       "**/node_modules": true,
+    //       "**/dist": true
+    //     },
+    //     "terminal.integrated.defaultProfile.linux": "bash"
+    //   },
+    //   "extensions": [
+    //     "ms-vscode.vscode-typescript-next",
+    //     "bradlc.vscode-tailwindcss",
+    //     "esbenp.prettier-vscode",
+    //     "dbaeumer.vscode-eslint",
+    //     "ms-vscode.vscode-json",
+    //     "ms-playwright.playwright",
+    //     "github.copilot"
+    //   ]
+    // },
+
+    // JetBrains/IntelliJ IDEA Configuration
+    "jetbrains": {
+      "plugins": [
+        "com.intellij.plugins.html",
+        "JavaScript",
+        "CSS",
+        "NodeJS",
+        "org.jetbrains.plugins.eslint",
+        "com.intellij.plugins.typescript"
+      ],
+      "settings": {
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "editor.codeInsight.autoImport.insertImports": true,
+        "editor.codeInsight.autoImport.optimizeImports": true,
+        "inspections.eslint.enable": true,
+        "prettier.enable": true,
+        "nodejs.interpreterPath": "/usr/local/bin/node"
+      }
+    }
+  },
+  "forwardPorts": [3000, 5173],
+  "portsAttributes": {
+    "3000": {
+      "label": "React Dev Server",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}
