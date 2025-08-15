@@ -1,15 +1,3 @@
-/* App-wide styles for dark theme */
-.pf-v5-theme-dark {
-    --pf-v5-global--BackgroundColor--100: #151515;
-    --pf-v5-global--BackgroundColor--200: #1f1f1f;
-    --pf-v5-global--BackgroundColor--300: #292929;
-    --pf-v5-global--Color--100: #ffffff;
-    --pf-v5-global--Color--200: #f0f0f0;
-    min-height: 100vh;
-    background-color: var(--pf-v5-global--BackgroundColor--100);
-    color: var(--pf-v5-global--Color--100);
-}
-
 /* Ensure full height for proper dark theme coverage */
 html, body, #root {
     height: 100%;
@@ -19,7 +7,7 @@ html, body, #root {
 
 /* Custom styling for main content area */
 .swaparoony-main-content {
-    padding: var(--pf-v5-global--spacer--lg);
+    padding: var(--pf-t--global--spacer--lg);
     max-width: 1200px;
     margin: 0 auto;
 }

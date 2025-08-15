@@ -4,8 +4,8 @@ import './App.css';
 
 function App() {
     return (
-        <div className="pf-v5-theme-dark">
-        <AppLayout />
+        <div className="pf-v6-theme-dark">
+            <AppLayout />
         </div>
     );
 }
