@@ -13,7 +13,7 @@ oc new-app registry.access.redhat.com/ubi8/nodejs-20:latest~https://github.com/t
 # oc new-app registry.access.redhat.com/ubi8/nodejs-22:latest~https://github.com/thesteve0/swaparoony-frontend --name=swaparoony-frontend
 
 # Update service to use correct port (3000) and add proper port name
-oc patch svc/swaparoony-frontend -p '{"spec":{"ports":[{"name":"http","port":80,"targetPort":3000,"protocol":"TCP"}]}}'
+oc patch svc/swaparoony-frontend -p '{"spe1c":{"ports":[{"name":"http","port":80,"targetPort":3000,"protocol":"TCP"}]}}'
 
 # Expose the service as a secure route with TLS
 oc expose svc/swaparoony-frontend --port=http

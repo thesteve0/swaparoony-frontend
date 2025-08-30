@@ -7,26 +7,30 @@
 
 set -e
 
-echo "---> Installing nginx..."
-# Try different package managers based on what's available in UBI8
-if command -v microdnf &> /dev/null; then
-    echo "---> Using microdnf to install nginx"
-    microdnf install -y nginx
-elif command -v yum &> /dev/null; then
-    echo "---> Using yum to install nginx"
-    yum install -y nginx
-elif command -v dnf &> /dev/null; then
-    echo "---> Using dnf to install nginx"
-    dnf install -y nginx
-else
-    echo "ERROR: No package manager found (yum, dnf, or microdnf)"
-    exit 1
-fi
-
-echo "---> nginx installation completed"
-
 echo "---> Running default S2I assemble script..."
-# Execute the default assemble script to handle Node.js build
+# Execute the default assemble script to handle Node.js build (this installs nginx-binaries)
 /usr/libexec/s2i/assemble
+
+echo "---> Setting up nginx binary..."
+# The nginx-binaries package downloads nginx to node_modules/.bin/
+if [ -f "./node_modules/.bin/nginx-binaries" ]; then
+    echo "---> Downloading nginx binary via nginx-binaries package..."
+    ./node_modules/.bin/nginx-binaries --help || true
+    
+    # Create a symlink so our start script can find nginx
+    if [ ! -L "./nginx" ]; then
+        echo "---> Creating nginx symlink..."
+        # Find the actual nginx binary path
+        NGINX_PATH=$(find ./node_modules/nginx-binaries -name "nginx*" -type f -executable 2>/dev/null | head -1)
+        if [ -n "$NGINX_PATH" ]; then
+            ln -sf "$NGINX_PATH" ./nginx
+            echo "---> nginx binary linked at $(pwd)/nginx"
+        else
+            echo "---> Warning: nginx binary not found in nginx-binaries"
+        fi
+    fi
+else
+    echo "---> Warning: nginx-binaries not found"
+fi
 
 echo "---> Custom assemble script completed"
