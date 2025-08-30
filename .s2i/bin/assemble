@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# S2I assemble script for swaparoony-frontend
+# This script is responsible for building the application artifacts from source
+# and placing them into appropriate directories for the run script to execute
+#
+
+set -e
+
+echo "---> Installing nginx..."
+# Try different package managers based on what's available in UBI8
+if command -v microdnf &> /dev/null; then
+    echo "---> Using microdnf to install nginx"
+    microdnf install -y nginx
+elif command -v yum &> /dev/null; then
+    echo "---> Using yum to install nginx"
+    yum install -y nginx
+elif command -v dnf &> /dev/null; then
+    echo "---> Using dnf to install nginx"
+    dnf install -y nginx
+else
+    echo "ERROR: No package manager found (yum, dnf, or microdnf)"
+    exit 1
+fi
+
+echo "---> nginx installation completed"
+
+echo "---> Running default S2I assemble script..."
+# Execute the default assemble script to handle Node.js build
+/usr/libexec/s2i/assemble
+
+echo "---> Custom assemble script completed"
