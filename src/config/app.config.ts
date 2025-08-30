@@ -14,8 +14,8 @@ export interface AppConfig {
 
 export const appConfig: AppConfig = {
     api: {
-        baseUrl: (import.meta as any).env?.VITE_API_BASE_URL || 'https://swaparoony-face-swap-predictor-face-swapper.apps.cluster.internal.rhai-tmm.dev',
-        faceSwapEndpoint: ':predict',
+        baseUrl: '/api',
+        faceSwapEndpoint: '/predict',
     },
     camera: {
         previewWidth: parseInt((import.meta as any).env?.VITE_CAMERA_PREVIEW_WIDTH || '1024'),

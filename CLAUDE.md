@@ -1,4 +1,4 @@
-What3# CLAUDE.md
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -20,7 +20,8 @@ This is a React TypeScript frontend for a face swap application using PatternFly
 - **Component Structure**: Functional components with TypeScript interfaces
 - **UI Framework**: PatternFly v6 components with dark theme (`pf-v6-theme-dark`)
 - **Camera Integration**: WebRTC MediaStream API with canvas-based photo capture and resizing
-- **API Communication**: Fetch API with FormData for multipart uploads
+- **API Communication**: Fetch API with JSON payloads for KServe integration
+- **Serving Infrastructure**: nginx reverse proxy for static files and API routing
 
 ### Key Application Flow
 
@@ -47,8 +48,26 @@ Environment-based configuration in `src/config/app.config.ts`:
 The app uses a state machine approach in the main camera component with states:
 `idle` → `initializing` → `ready` → `captured` → `processing` → `results` | `error`
 
+### nginx Reverse Proxy Architecture
+
+**Production Serving**: nginx serves the application in OpenShift using standalone binary approach:
+
+- **nginx Binary**: Downloaded via `nginx-binaries` npm package during S2I build
+- **Port Configuration**: nginx listens on port 8080 (matches OpenShift service expectations)
+- **Static File Serving**: Serves React build files from `/opt/app-root/src/dist`
+- **SPA Routing**: Handles client-side routing with `try_files` fallback to `index.html`
+- **MIME Types**: Custom `mime.types` file for proper content type handling
+- **Future Proxy**: Ready for `/api/predict` reverse proxy to KServe service
+
+**Key Files**:
+- `nginx.conf` - nginx configuration for static serving and future proxy
+- `mime.types` - MIME type mappings for web assets
+- `download-nginx.mjs` - Node.js script using nginx-binaries API
+- `.s2i/bin/assemble` - Custom S2I script for nginx setup during build
+
 ### Development Environment
 
 - Vite dev server configured for host `0.0.0.0:3000` for container compatibility
 - TypeScript strict mode enabled
 - ESLint with React hooks and TypeScript rules
+- nginx binary deployment maintains development workflow compatibility

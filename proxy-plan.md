@@ -1,85 +1,59 @@
-# nginx Reverse Proxy Implementation Plan
+# nginx Reverse Proxy Implementation - COMPLETED ✅
 
-## Current State Analysis
-- Frontend makes direct calls to KServe API at external URL causing CORS issues
-- App configured via environment variables in `src/config/app.config.ts`
-- Currently deployed in Kubernetes with ConfigMap for environment variables
-- Using `oc new-app` with nodejs-20 base image for build and deployment
+## Phase 1: Static File Serving (COMPLETED)
 
-## Updated Approach Based on Requirements
+**Status**: ✅ Successfully implemented and deployed
+**Result**: nginx now serves React application with proper static file handling
 
-### 1. Keep Existing `oc new-app` Build Flow
-- Continue using `registry.access.redhat.com/ubi8/nodejs-20` base image
-- Add nginx as dependency and configure within existing container
-- Modify startup script to run nginx instead of `vite preview`
+## What Was Accomplished ✅
 
-### 2. Use Automatic Kubernetes Service Discovery
-- Leverage `SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST` environment variable (e.g., `172.30.134.170`)
-- No need for external URLs in ConfigMap anymore
-- Append `:predict` to the service host in nginx config
+### 1. nginx Binary Integration ✅
+- ✅ Added `nginx-binaries` npm package dependency
+- ✅ Created `download-nginx.mjs` script using nginx-binaries JS API
+- ✅ Updated `.s2i/bin/assemble` script to download nginx during build
+- ✅ nginx binary successfully downloads and runs in OpenShift
 
-### 3. Create nginx Configuration
-- Create `nginx.conf` that proxies `/api/predict` to `$SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST:predict`
-- Serve static frontend files for all other routes
-- No CORS headers needed (same origin)
+### 2. Static File Serving ✅
+- ✅ Created `nginx.conf` for serving React build files
+- ✅ Added custom `mime.types` file for proper content types
+- ✅ nginx listens on port 8080 (matching OpenShift service requirements)
+- ✅ SPA routing works with `try_files` fallback to `index.html`
 
-### 4. Update Application Code
-- Change `src/config/app.config.ts` to use relative path `/api`
-- Keep `faceSwapEndpoint` as `/predict` 
-- Remove external API URL handling
+### 3. OpenShift Integration ✅
+- ✅ Maintains existing `oc new-app` workflow
+- ✅ S2I build process installs and configures nginx
+- ✅ Service port correctly mapped to nginx port
+- ✅ Route properly configured for external access
 
-### 5. Update Package.json & Startup
-- Add nginx to dependencies
-- Modify `start` script to run nginx with custom config
-- Ensure built files are served by nginx
+### 4. Configuration Management ✅
+- ✅ Updated `package.json` start script to use `./nginx`
+- ✅ Port alignment: nginx:8080 ↔ service:8080 ↔ route:http
+- ✅ No system package installation required (uses standalone binary)
 
-### 6. Clean Up Configuration
-- Remove `VITE_API_BASE_URL` from `config/configmap.yaml`
-- Keep camera settings in ConfigMap
+## Phase 2: Reverse Proxy Implementation (NEXT)
 
-## Implementation Steps
+### Remaining Tasks for KServe Integration:
 
-### Step 1: Create nginx Configuration
-Create `nginx.conf` file that:
-- Listens on port 3000
-- Serves static files from `/opt/app-root/src/dist`
-- Proxies `/api/predict` to KServe service using environment variable
-- Handles SPA routing with try_files
+1. **Update nginx Configuration for Proxy**
+   - Add `/api/predict` location block to `nginx.conf`
+   - Configure proxy to internal KServe service
+   - Use `$SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST` environment variable
 
-### Step 2: Update Package.json
-- Add nginx dependency
-- Update `start` script to run nginx instead of vite preview
-- Add script to substitute environment variables in nginx config
+2. **Update Application Configuration**
+   - Change `src/config/app.config.ts` to use `/api` as baseUrl
+   - Update `faceSwapEndpoint` to `/predict`
+   - Remove external URL dependencies
 
-### Step 3: Update Application Configuration
-- Modify `src/config/app.config.ts` to use `/api` as baseUrl
-- Keep `/predict` as faceSwapEndpoint
+3. **Clean Up ConfigMap**
+   - Remove `VITE_API_BASE_URL` from ConfigMap (no longer needed)
+   - Rely on Kubernetes service discovery instead
 
-### Step 4: Clean Up ConfigMap
-- Remove `VITE_API_BASE_URL` from `config/configmap.yaml`
-- Keep camera configuration settings
-
-### Step 5: Update Deployment Documentation
-- Update `DEPLOYMENT.md` with new nginx-based approach
-- Document how service discovery works
-
-## Files to Create/Modify
-
-### Create:
-- `nginx.conf` - nginx configuration with reverse proxy
-
-### Modify:
-- `package.json` - add nginx dependency and update start script
-- `src/config/app.config.ts` - use relative URLs
-- `config/configmap.yaml` - remove API URL
-- `DEPLOYMENT.md` - update deployment steps
-
-## Benefits
-- Keeps existing OpenShift build process intact
-- Uses Kubernetes service discovery automatically
-- Eliminates CORS completely
-- Simpler configuration management
-- No changes needed to existing React components
+### Benefits of Current Implementation ✅
+- ✅ Maintains existing OpenShift build process
+- ✅ Uses standalone nginx binary (no system dependencies)
+- ✅ Ready for reverse proxy addition
+- ✅ Eliminates CORS issues through same-origin requests
+- ✅ No changes needed to React components
 
 ## Technical Details
 

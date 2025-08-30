@@ -1,19 +1,15 @@
 # OpenShift Deployment Instructions
 
-## Phase 1: Basic Deployment
+## Phase 1: nginx-Powered Frontend Deployment
 
-Deploy the current application to OpenShift using Node.js 22 runtime:
+Deploy the React application with nginx reverse proxy using Node.js 20 runtime:
 
 ```bash
-# Create the application from GitHub repository with proper port configuration
-# Option 1: Try nodejs-20 if nodejs-22 is not available
+# Create the application from GitHub repository
 oc new-app registry.access.redhat.com/ubi8/nodejs-20:latest~https://github.com/thesteve0/swaparoony-frontend --name=swaparoony-frontend
 
-# Option 2: If nodejs-22 is available in your cluster, use:
-# oc new-app registry.access.redhat.com/ubi8/nodejs-22:latest~https://github.com/thesteve0/swaparoony-frontend --name=swaparoony-frontend
-
-# Update service to use correct port (3000) and add proper port name
-oc patch svc/swaparoony-frontend -p '{"spe1c":{"ports":[{"name":"http","port":80,"targetPort":3000,"protocol":"TCP"}]}}'
+# Update service to use correct port (8080) for nginx and add proper port name
+oc patch svc/swaparoony-frontend -p '{"spec":{"ports":[{"name":"http","port":8080,"targetPort":8080,"protocol":"TCP"}]}}'
 
 # Expose the service as a secure route with TLS
 oc expose svc/swaparoony-frontend --port=http
@@ -25,6 +21,21 @@ oc get pods -l deployment=swaparoony-frontend
 # Get the external route URL
 oc get route swaparoony-frontend
 ```
+
+## nginx Implementation Details
+
+The application now uses nginx as a static file server and future reverse proxy:
+
+- **nginx binary**: Downloaded via `nginx-binaries` npm package during build
+- **Static serving**: nginx serves React build files from `/opt/app-root/src/dist`
+- **Port**: nginx listens on port 8080 (matching OpenShift service expectations)
+- **S2I Integration**: Custom `.s2i/bin/assemble` script downloads nginx during build process
+
+### Key Files:
+- `nginx.conf` - nginx configuration for static file serving
+- `mime.types` - MIME type mappings for web assets
+- `download-nginx.mjs` - Node.js script using nginx-binaries API
+- `.s2i/bin/assemble` - Custom S2I script for nginx setup
 
 ## Verification Steps
 

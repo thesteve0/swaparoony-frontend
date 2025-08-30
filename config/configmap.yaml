@@ -4,9 +4,6 @@ metadata:
   name: swaparoony-frontend-config
   namespace: face-swapper
 data:
-  # KServe API Configuration
-  VITE_API_BASE_URL: "https://route-swaparoony-face-swapper.apps.cluster.internal.rhai-tmm.dev"
-  
   # Camera Configuration (optional overrides)
   VITE_CAMERA_PREVIEW_WIDTH: "1024"
   VITE_CAMERA_PREVIEW_HEIGHT: "1024"
