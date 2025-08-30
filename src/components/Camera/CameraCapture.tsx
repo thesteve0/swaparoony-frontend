@@ -68,20 +68,30 @@ export const CameraCapture: React.FC = () => {
             console.log('Got media stream:', mediaStream);
             setStream(mediaStream);
 
-            if (videoRef.current) {
-                console.log('Setting video srcObject...');
-                videoRef.current.srcObject = mediaStream;
-                
-                // Add event listeners for debugging
-                videoRef.current.onloadedmetadata = () => {
-                    console.log('Video metadata loaded');
-                };
-                videoRef.current.oncanplay = () => {
-                    console.log('Video can play');
-                };
-            }
-
+            // Set state to ready first so video element gets rendered
             setState('ready');
+            
+            // Use setTimeout to ensure video element is rendered
+            setTimeout(() => {
+                if (videoRef.current) {
+                    console.log('Setting video srcObject...');
+                    videoRef.current.srcObject = mediaStream;
+                    
+                    // Add event listeners for debugging
+                    videoRef.current.onloadedmetadata = () => {
+                        console.log('Video metadata loaded');
+                    };
+                    videoRef.current.oncanplay = () => {
+                        console.log('Video can play');
+                    };
+                    videoRef.current.onerror = (e) => {
+                        console.error('Video error:', e);
+                    };
+                } else {
+                    console.error('Video ref is null after timeout');
+                }
+            }, 100);
+
             console.log('Camera initialization complete');
         } catch (err) {
             console.error('Camera initialization error:', err);
