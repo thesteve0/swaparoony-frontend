@@ -49,25 +49,42 @@ export const CameraCapture: React.FC = () => {
     }, []);
 
     const initializeCamera = async () => {
+        console.log('Starting camera initialization...');
+        
         if (!isCameraSupported()) {
+            console.error('Camera not supported');
             setError('Camera is not supported by this browser');
             setState('error');
             return;
         }
 
+        console.log('Camera is supported, initializing...');
         setState('initializing');
         setError('');
 
         try {
+            console.log('Requesting user media stream...');
             const mediaStream = await getUserMediaStream();
+            console.log('Got media stream:', mediaStream);
             setStream(mediaStream);
 
             if (videoRef.current) {
+                console.log('Setting video srcObject...');
                 videoRef.current.srcObject = mediaStream;
+                
+                // Add event listeners for debugging
+                videoRef.current.onloadedmetadata = () => {
+                    console.log('Video metadata loaded');
+                };
+                videoRef.current.oncanplay = () => {
+                    console.log('Video can play');
+                };
             }
 
             setState('ready');
+            console.log('Camera initialization complete');
         } catch (err) {
+            console.error('Camera initialization error:', err);
             const errorMessage = err instanceof Error ? err.message : 'Failed to access camera';
             setError(errorMessage);
             setState('error');

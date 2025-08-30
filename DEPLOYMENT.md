@@ -75,6 +75,29 @@ oc get route swaparoony-frontend
   oc get route swaparoony-frontend -o yaml
   ```
 
+## Phase 2: KServe Service Setup
+
+After the frontend is deployed, you need to expose the KServe service externally:
+
+```bash
+# Expose the KServe predictor service as an external route
+oc expose svc/swaparoony-face-swap-predictor
+
+# Get the KServe service route URL
+oc get route swaparoony-face-swap-predictor
+
+# Update frontend environment variable (optional - defaults to your cluster URL pattern)
+oc set env deployment/swaparoony-frontend VITE_API_BASE_URL=https://$(oc get route swaparoony-face-swap-predictor -o jsonpath='{.spec.host}')
+```
+
+**Note:** The frontend is configured to use the external KServe route by default using your cluster's URL pattern. If your cluster uses a different URL format, set the `VITE_API_BASE_URL` environment variable.
+
+## Verification
+
+1. **Test Frontend:** Access your frontend route and verify camera functionality
+2. **Test KServe:** Verify the KServe route is accessible
+3. **Test Integration:** Try the complete face swap workflow
+
 ## Next Steps
 
-After successful deployment, proceed to Phase 2: API format changes for KServe integration.
+The application should now work end-to-end with the KServe API integration.
