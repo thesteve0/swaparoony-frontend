@@ -1,4 +1,5 @@
 import { appConfig } from '../config/app.config';
+import { blobToBase64 } from './camera';
 import type { FaceSwapResponse, ErrorResponse } from '../types';
 
 export interface FaceSwapParams {
@@ -8,22 +9,30 @@ export interface FaceSwapParams {
 }
 
 /**
- * Submit photo for face swapping
+ * Submit photo for face swapping using KServe JSON format
  */
 export const submitFaceSwap = async (params: FaceSwapParams): Promise<FaceSwapResponse> => {
     const { imageBlob, sourceFaceId = 1, destinationFaceId = 1 } = params;
 
     try {
-        const formData = new FormData();
-        formData.append('image', imageBlob, 'captured-photo.jpg');
-        formData.append('source_face_id', sourceFaceId.toString());
-        formData.append('destination_face_id', destinationFaceId.toString());
+        // Convert blob to base64
+        const base64Image = await blobToBase64(imageBlob);
+
+        // Create JSON payload for KServe
+        const payload = {
+            image: base64Image,
+            source_face_id: sourceFaceId,
+            destination_face_id: destinationFaceId,
+        };
 
         const response = await fetch(
             `${appConfig.api.baseUrl}${appConfig.api.faceSwapEndpoint}`,
             {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
             }
         );
 

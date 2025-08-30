@@ -82,6 +82,26 @@ export const captureAndResizePhoto = async (
 };
 
 /**
+ * Convert blob to base64 string
+ */
+export const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            } else {
+                reject(new Error('Failed to convert blob to base64'));
+            }
+        };
+        reader.onerror = () => reject(new Error('FileReader error'));
+        reader.readAsDataURL(blob);
+    });
+};
+
+/**
  * Check if camera is supported by the browser
  */
 export const isCameraSupported = (): boolean => {
