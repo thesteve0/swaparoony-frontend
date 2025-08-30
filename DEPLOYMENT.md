@@ -77,17 +77,25 @@ oc get route swaparoony-frontend
 
 ## Phase 2: KServe Service Setup
 
-After the frontend is deployed, you need to expose the KServe service externally:
+Before deploying the frontend, set up the configuration:
 
 ```bash
-# Expose the KServe predictor service as an external route
+# 1. Expose the KServe predictor service as an external route
 oc expose svc/swaparoony-face-swap-predictor
 
-# Get the KServe service route URL
-oc get route swaparoony-face-swap-predictor
+# 2. Get the KServe service route URL
+KSERVE_URL=$(oc get route swaparoony-face-swap-predictor -o jsonpath='{.spec.host}')
+echo "KServe URL: https://$KSERVE_URL"
 
-# Update frontend environment variable (optional - defaults to your cluster URL pattern)
-oc set env deployment/swaparoony-frontend VITE_API_BASE_URL=https://$(oc get route swaparoony-face-swap-predictor -o jsonpath='{.spec.host}')
+# 3. Update the ConfigMap with your actual KServe URL
+# Edit config/configmap.yaml and update VITE_API_BASE_URL with your URL, then:
+oc apply -f config/configmap.yaml
+
+# 4. Deploy/redeploy the frontend with ConfigMap environment variables
+oc set env deployment/swaparoony-frontend --from=configmap/swaparoony-frontend-config
+
+# 5. Verify the environment variables are set
+oc set env deployment/swaparoony-frontend --list
 ```
 
 **Note:** The frontend is configured to use the external KServe route by default using your cluster's URL pattern. If your cluster uses a different URL format, set the `VITE_API_BASE_URL` environment variable.
