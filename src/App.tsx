@@ -1,4 +1,4 @@
-import React from 'react';
+// Remove unused React import for newer React versions
 import { AppLayout } from './components/Layout';
 import './App.css';
 
