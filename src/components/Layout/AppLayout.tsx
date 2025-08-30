@@ -12,7 +12,7 @@ export const AppLayout: React.FC = () => {
     return (
         <Page>
             {/* Hero Section */}
-            <PageSection variant={PageSectionVariants.darker} className="pf-v6-u-text-align-center">
+            <PageSection className="pf-v6-u-text-align-center pf-v6-u-background-color-dark-100">
                 <Title headingLevel="h1" size="4xl" className="pf-v6-u-mb-md">
                     <CameraIcon style={{ marginRight: '20px' }} />
                     Swaparoony Face Swap Application
