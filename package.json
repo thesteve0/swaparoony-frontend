@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "start": "./nginx -g 'daemon off;' -c /opt/app-root/src/nginx.conf",
+    "start": "export DOLLAR='$' && envsubst < /opt/app-root/src/nginx.conf.template > /opt/app-root/src/nginx.conf && ./nginx -g 'daemon off;' -c /opt/app-root/src/nginx.conf",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest"
