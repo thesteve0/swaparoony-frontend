@@ -11,26 +11,26 @@ echo "---> Running default S2I assemble script..."
 # Execute the default assemble script to handle Node.js build (this installs nginx-binaries)
 /usr/libexec/s2i/assemble
 
-echo "---> Setting up nginx binary..."
-# The nginx-binaries package downloads nginx to node_modules/.bin/
-if [ -f "./node_modules/.bin/nginx-binaries" ]; then
-    echo "---> Downloading nginx binary via nginx-binaries package..."
-    ./node_modules/.bin/nginx-binaries --help || true
+echo "---> Setting up nginx binary using JS API..."
+# Use our custom Node.js script to download nginx binary
+if [ -f "./download-nginx.mjs" ]; then
+    echo "---> Running nginx download script..."
+    node ./download-nginx.mjs
     
-    # Create a symlink so our start script can find nginx
-    if [ ! -L "./nginx" ]; then
-        echo "---> Creating nginx symlink..."
-        # Find the actual nginx binary path
-        NGINX_PATH=$(find ./node_modules/nginx-binaries -name "nginx*" -type f -executable 2>/dev/null | head -1)
-        if [ -n "$NGINX_PATH" ]; then
-            ln -sf "$NGINX_PATH" ./nginx
-            echo "---> nginx binary linked at $(pwd)/nginx"
-        else
-            echo "---> Warning: nginx binary not found in nginx-binaries"
-        fi
+    # Verify nginx binary was created
+    if [ -x "./nginx" ]; then
+        echo "---> nginx binary successfully downloaded and ready"
+        echo "---> nginx location: $(pwd)/nginx"
+        # Test nginx
+        ./nginx -v 2>&1 | head -1 || echo "nginx version check failed"
+    else
+        echo "---> ERROR: nginx binary not found at ./nginx"
+        echo "---> Contents of current directory:"
+        ls -la ./ | grep nginx || echo "No nginx files found"
     fi
 else
-    echo "---> Warning: nginx-binaries not found"
+    echo "---> ERROR: download-nginx.mjs script not found"
+    ls -la ./ | grep -E "\.(mjs|js)$" || echo "No JS files found"
 fi
 
 echo "---> Custom assemble script completed"
