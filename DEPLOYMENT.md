@@ -91,10 +91,17 @@ echo "KServe URL: https://$KSERVE_URL"
 # Edit config/configmap.yaml and update VITE_API_BASE_URL with your URL, then:
 oc apply -f config/configmap.yaml
 
-# 4. Deploy/redeploy the frontend with ConfigMap environment variables
+# 4. Set environment variables for build time (Vite needs these during build)
+oc set env bc/swaparoony-frontend --from=configmap/swaparoony-frontend-config
+
+# 5. Set environment variables for runtime (good practice)
 oc set env deployment/swaparoony-frontend --from=configmap/swaparoony-frontend-config
 
-# 5. Verify the environment variables are set
+# 6. Trigger a new build with the environment variables
+oc start-build swaparoony-frontend
+
+# 7. Verify the environment variables are set
+oc set env bc/swaparoony-frontend --list
 oc set env deployment/swaparoony-frontend --list
 ```
 
