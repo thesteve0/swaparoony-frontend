@@ -25,6 +25,10 @@ export const submitFaceSwap = async (params: FaceSwapParams): Promise<FaceSwapRe
             destination_face_id: destinationFaceId,
         };
 
+        // Create AbortController with longer timeout for AI processing
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+
         const response = await fetch(
             `${appConfig.api.baseUrl}${appConfig.api.faceSwapEndpoint}`,
             {
@@ -33,8 +37,11 @@ export const submitFaceSwap = async (params: FaceSwapParams): Promise<FaceSwapRe
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
+                signal: controller.signal,
             }
         );
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorData: ErrorResponse = await response.json().catch(() => ({
