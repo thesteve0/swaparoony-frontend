@@ -18,6 +18,14 @@ http {
             proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
             proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
+            
+            # Increase timeouts for AI processing
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 300s;
+            proxy_read_timeout 300s;
+            
+            # Handle large image uploads
+            client_max_body_size 10M;
         }
         
         # Handle static assets
