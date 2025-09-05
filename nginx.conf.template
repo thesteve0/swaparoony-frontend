@@ -6,18 +6,36 @@ http {
     include /opt/app-root/src/mime.types;
     default_type application/octet-stream;
     
+    # Logging configuration
+    error_log /dev/stderr info;
+    access_log /dev/stdout combined;
+    
     server {
         listen 8080;
         root /opt/app-root/src/dist;
         index index.html;
         
+        # Debug endpoint to check environment variables
+        location /api/debug {
+            return 200 "Upstream Host: ${SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST}\nUpstream Port: ${SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_PORT}\nService Host IP: ${SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST}\n";
+            add_header Content-Type text/plain;
+        }
+        
         # Proxy API calls to KServe service
         location /api/predict {
+            # Log the resolved upstream for debugging
+            access_log /dev/stdout combined;
+            error_log /dev/stderr debug;
+            
             proxy_pass http://${SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST}/v1/models/swaparoony-face-swap:predict;
             proxy_set_header Host ${DOLLAR}host;
             proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
             proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
+            
+            # Add debugging headers
+            add_header X-Upstream-Host ${SWAPAROONY_FACE_SWAP_PREDICTOR_SERVICE_HOST} always;
+            add_header X-Debug-Location "/api/predict" always;
             
             # Increase timeouts for AI processing
             proxy_connect_timeout 30s;
