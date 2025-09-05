@@ -19,6 +19,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({ isOpen }) => {
             aria-labelledby="processing-modal-title"
             aria-describedby="processing-modal-description"
             variant="medium"
+            disableFocusTrap={true}
         >
             <ModalBody>
                 <Flex 
