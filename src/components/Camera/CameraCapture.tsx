@@ -28,6 +28,8 @@ import {
 import { submitFaceSwap } from '../../utils/api';
 import { appConfig } from '../../config/app.config';
 import type { CapturedPhoto, FaceSwapResponse } from '../../types';
+import { ProcessingModal } from '../ProcessingModal';
+import { ImageLightbox } from '../ImageLightbox';
 
 type CameraState = 'idle' | 'initializing' | 'ready' | 'captured' | 'processing' | 'results' | 'error';
 
@@ -38,6 +40,7 @@ export const CameraCapture: React.FC = () => {
     const [capturedPhoto, setCapturedPhoto] = useState<CapturedPhoto | null>(null);
     const [results, setResults] = useState<FaceSwapResponse | null>(null);
     const [error, setError] = useState<string>('');
+    const [lightboxImage, setLightboxImage] = useState<{ url: string; alt: string } | null>(null);
 
     // Initialize camera on mount
     useEffect(() => {
@@ -152,6 +155,14 @@ export const CameraCapture: React.FC = () => {
         setResults(null);
         setState('idle');
         initializeCamera();
+    };
+
+    const openLightbox = (imageUrl: string, altText: string) => {
+        setLightboxImage({ url: imageUrl, alt: altText });
+    };
+
+    const closeLightbox = () => {
+        setLightboxImage(null);
     };
 
     const renderCameraPreview = () => (
@@ -287,7 +298,12 @@ export const CameraCapture: React.FC = () => {
                                                     height: 'auto',
                                                     maxWidth: '300px',
                                                     borderRadius: 'var(--pf-v6-global--BorderRadius--sm)',
+                                                    cursor: 'pointer',
                                                 }}
+                                                onClick={() => openLightbox(
+                                                    `data:image/jpeg;base64,${image.image_data}`,
+                                                    `Face swap result: ${image.destination_name}`
+                                                )}
                                             />
                                             <Title headingLevel="h4" size="md" className="pf-v6-u-mt-sm">
                                                 {image.destination_name}
@@ -315,6 +331,15 @@ export const CameraCapture: React.FC = () => {
 
     return (
         <div className="camera-capture">
+            <ProcessingModal isOpen={state === 'processing'} />
+            
+            <ImageLightbox
+                isOpen={!!lightboxImage}
+                imageUrl={lightboxImage?.url || ''}
+                altText={lightboxImage?.alt || ''}
+                onClose={closeLightbox}
+            />
+            
             {error && (
                 <Alert
                     variant={AlertVariant.danger}
