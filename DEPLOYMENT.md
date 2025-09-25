@@ -39,6 +39,9 @@ oc patch svc/swaparoony-frontend -p '{"spec":{"ports":[{"name":"http","port":808
 # Expose the service as a secure route with TLS
 oc expose svc/swaparoony-frontend --port=http
 oc patch route/swaparoony-frontend -p '{"spec":{"tls":{"termination":"edge","insecureEdgeTerminationPolicy":"Redirect"}}}'
+
+# Configure route timeout for AI processing (KServe can take several minutes)
+oc annotate route swaparoony-frontend haproxy.router.openshift.io/timeout=300s
 ```
 
 ### Step 2: Configure Camera Settings (Optional)

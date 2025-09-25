@@ -104,6 +104,7 @@ oc new-app registry.access.redhat.com/ubi8/nodejs-20:latest~https://github.com/t
 oc patch svc/swaparoony-frontend -p '{"spec":{"ports":[{"name":"http","port":8080,"targetPort":8080,"protocol":"TCP"}]}}'
 oc expose svc/swaparoony-frontend --port=http
 oc patch route/swaparoony-frontend -p '{"spec":{"tls":{"termination":"edge","insecureEdgeTerminationPolicy":"Redirect"}}}'
+oc annotate route swaparoony-frontend haproxy.router.openshift.io/timeout=300s
 
 # Build and deploy cycle
 git add . && git commit -m "message" && git push && oc start-build swaparoony-frontend
