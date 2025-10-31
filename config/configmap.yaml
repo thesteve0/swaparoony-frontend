@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: swaparoony-frontend-config
-  namespace: face-swapper
+  namespace: kcd-face-swapper
 data:
   # Camera Configuration (optional overrides)
   VITE_CAMERA_PREVIEW_WIDTH: "1024"
